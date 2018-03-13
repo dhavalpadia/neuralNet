@@ -3,8 +3,7 @@
 //  flexNN
 //
 //  Created by Nihit Bhavsar on 3/8/18.
-//  Credits : Karston Kutza
-//  Copyright © 2018 Nihit Bhavsar. All rights reserved.
+//  Credits : Kutza
 // g(z)=z/2(1+abs(z))+0.5              signmoid with 2 divides and no multiplication
 
 /*
