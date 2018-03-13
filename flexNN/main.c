@@ -1,9 +1,7 @@
 //
 //  main.c
 //  flexNN
-//
-//  Created by Nihit Bhavsar on 3/8/18.
-//  Credits : Kutza
+//  Credits : Mr. Kutza
 // g(z)=z/2(1+abs(z))+0.5              signmoid with 2 divides and no multiplication
 
 /*
@@ -236,6 +234,9 @@ void calcActivation(NN* nn)
         }
         
         calcz(nn,higherLayer,lowerLayer);
+        
+        
+        
         //higherLayer->output[0] = 1;                                 // BIAS FOR
         
         /*     double sum = 0.0;
