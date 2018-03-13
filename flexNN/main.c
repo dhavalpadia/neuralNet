@@ -57,7 +57,7 @@ typedef struct {
     double          gain;
     double*         outputLayer;         //   output layer
     double*         inputLayer;          //   input layer
-    //double*         targetOutput;
+  //double*         targetOutput;
 }NN;
 
 
@@ -90,19 +90,19 @@ void allocateMem(NN* nn)
     {
         nn->HiddenLayer[i] =          (HIDDENLAYER*)malloc(sizeof(HIDDENLAYER));
         nn->HiddenLayer[i]->Neurons = Neurons[i];
-        nn->HiddenLayer[i]->input =   (double*)calloc(Neurons[i]+1, sizeof(double));
-        nn->HiddenLayer[i]->output =  (double*)calloc(Neurons[i]+1, sizeof(double));
-        //nn->HiddenLayer[i]->Error =   (double*)calloc(Neurons[i]+1, sizeof(double));
-        nn->HiddenLayer[i]->delta =   (double*)calloc(Neurons[i]+1, sizeof(double));
+        nn->HiddenLayer[i]->input =   (double*)calloc(Neurons[i], sizeof(double));
+        nn->HiddenLayer[i]->output =  (double*)calloc(Neurons[i], sizeof(double));
+        //nn->HiddenLayer[i]->Error =   (double*)calloc(Neurons[i], sizeof(double));
+        nn->HiddenLayer[i]->delta =   (double*)calloc(Neurons[i], sizeof(double));
         
-        if(i!=0)
+        if(i!=0)            // except input
         {
-            nn->HiddenLayer[i]->Theta = (double**)calloc(Neurons[i]+1, sizeof(double*));      // cols
-            nn->HiddenLayer[i]->changeTheta = (double**)calloc(Neurons[i]+1, sizeof(double*));
+            nn->HiddenLayer[i]->Theta = (double**)calloc(Neurons[i], sizeof(double*));            // cols
+            nn->HiddenLayer[i]->changeTheta = (double**)calloc(Neurons[i], sizeof(double*));
             for(int j=0; j<Neurons[i-1]; j++)
             {
-                nn->HiddenLayer[i]->Theta[j] = (double*)calloc(Neurons[i-1]+1,sizeof(double));    //  rows
-                nn->HiddenLayer[i]->changeTheta[j] = (double*)calloc(Neurons[i-1]+1, sizeof(double));
+                nn->HiddenLayer[i]->Theta[j] = (double*)calloc(Neurons[i-1],sizeof(double));      //  rows
+                nn->HiddenLayer[i]->changeTheta[j] = (double*)calloc(Neurons[i-1], sizeof(double));
             }
         }
         
@@ -128,9 +128,9 @@ void initInput()
     NN* nn;
     printf("Input Vector\n");
     
-    for(int j=0; j < nn->Inputsize; j++)
+    for(int j=1; j < nn->Inputsize; j++)
     {
-        
+        nn->HiddenLayer[0]->output[0] = 1;                           // BIAS FOR INPUT
         nn->HiddenLayer[0]->output[j] = 2*(rando()-0.5)*0.6;
         nn->HiddenLayer[0]->input[j] = nn->HiddenLayer[0]->output[j];
         printf("%f\n", nn->HiddenLayer[0]->output[j]);
@@ -196,8 +196,8 @@ void calcz(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
         {
             
             sum += lowerLayer->output[r] * higherLayer->Theta[c][r];
-            //printf("\t%f", lowerLayer->output[r]);
-            //printf("\t%f\n", higherLayer->Theta[c][r]);
+            printf("\t%f", lowerLayer->output[r]);
+            printf("\t%f\n", higherLayer->Theta[c][r]);
             
         }
         
@@ -207,7 +207,8 @@ void calcz(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
         
         
         higherLayer->output[c] = sigmoid(sum);
-        //printf("\t higher layer output : %f\n\n", higherLayer->output[c]);        // with activation
+        
+        printf("\t higher layer output : %f\n\n", higherLayer->output[c]);        // with activation
         
         
         // printf("\t lower layer input : %f\n", lowerLayer->input[c]);
@@ -230,12 +231,13 @@ void calcActivation(NN* nn)
         lowerLayer = nn->HiddenLayer[i-1];
         
         //nn->HiddenLayer[i-1]->output[0] = 1;                       // bias to previous layer output
-        
+       // lowerLayer->output[0] = 1;
         if(i<MAX_LAYERS - 2){                            // bias to all layers except output
             //higherLayer->output[0] = 1;
         }
         
         calcz(nn,higherLayer,lowerLayer);
+        //higherLayer->output[0] = 1;                                 // BIAS FOR
         
         /*     double sum = 0.0;
          
@@ -326,8 +328,6 @@ void calcDeltas(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
             sumD += higherLayer->delta[c] * higherLayer->Theta[c][d];
             //printf("\t%f", higherLayer->delta[c]);
             //printf("\t%f\n", higherLayer->Theta[c][d]);
-            
-            
         }
         
        lowerLayer->delta[d] = lowerLayer->output[d] * (1- lowerLayer->output[d])  * sumD;
@@ -339,6 +339,28 @@ void calcDeltas(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
     
 }
 
+void updateWeights(NN* nn)
+{
+    for(int i = 1; i < MAX_LAYERS; i++)
+    {
+        for(int r = 0; r < nn->HiddenLayer[i]->Neurons; r++)
+        {
+            for(int c = 0; c < nn->HiddenLayer[i-1]->Neurons; c++)
+            {
+               //double delta = nn->HiddenLayer[i]->delta[r];
+               //double out = nn->HiddenLayer[i]->
+                
+                
+            }
+            
+        }
+        
+        
+    }
+    
+    
+    
+}
 
 
 void backprop(NN* nn)
@@ -351,6 +373,7 @@ void backprop(NN* nn)
         HIDDENLAYER* lowerLayer = nn->HiddenLayer[i-1];
         calcDeltas(nn, higherLayer, lowerLayer);
         
+        updateWeights(nn);
         
         
     }
