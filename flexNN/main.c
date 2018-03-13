@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-
+#include <time.h>
 
 
 #define MAX_LAYERS 5            // ALWAYS WRITE +1 LAYER THAN NEEDED
@@ -66,7 +66,7 @@ double sigmoid(double in)
 
 void initRandoms()
 {
-    srand(4711);
+    srand(time(NULL));
 }
 
 
