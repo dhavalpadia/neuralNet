@@ -29,33 +29,6 @@ double target[3] = { 0.66, 0.99, 0.01};
 double outputError[MAX_LAYERS-2];
 
 
-/*typedef struct
-{
-    int             Neurons;         // Neurons
-    double*         input;           // Incoming weighted sum to each neuron
-    double*         output;          // Outgoing activated signal from each neuron
-    double*         delta;           // Error associated with each neuron
-    double**        Theta;           // Weights
-    double**        changeTheta;      // Weight change
-} HIDDENLAYER;
-
-typedef struct {
-    HIDDENLAYER**   HiddenLayer;         //   layers of this net
-    double          Inputsize;           //   Number of input neurons
-    double          Outputsize;          //   Number of output neurons
-    double          eta;                 //   learning rate
-    double          gain;
-    double*         outputLayer;         //   output layer
-    double*         inputLayer;          //   input layer
-  //double*         targetOutput;
-}NN;*/
-
-
-
-double sigmoid(double in)
-{
-    return (1.0/(1.0+exp(-in)));
-}
 
 void initRandoms()
 {

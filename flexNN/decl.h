@@ -14,6 +14,7 @@
 #include <math.h>
 #include <time.h>
 
+
 #define MAX_LAYERS 5
 
 #define rando() ((double)rand()/((double)RAND_MAX+1))
@@ -42,5 +43,6 @@ typedef struct {
 
 void distributeWeights(NN* nn);
 void randomizeWeights(HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer);
+double sigmoid(double in);
 
 #endif /* decl_h */
