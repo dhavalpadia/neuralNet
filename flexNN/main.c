@@ -20,9 +20,10 @@
 
 
 #include "decl.h"
+#include "initInput.h"
 
 
-int Neurons[MAX_LAYERS] = {6, 5, 5, 3};             // Number of neurons in each layer
+const int Neurons[5] = {6, 5, 5, 3};             // Number of neurons in each layer
 
 double target[3] = { 0.66, 0.99, 0.01};
 
@@ -34,7 +35,6 @@ void initRandoms()
 {
     srand(time(NULL));
 }
-
 
 
 void allocateMem(NN* nn)
@@ -77,31 +77,8 @@ void allocateMem(NN* nn)
     
 }
 
-void readInput()  // FILE* p
-{
-    
-    
-    
-}
 
 
-void initInput()
-{
-    readInput();
-    NN* nn;
-    printf("Input Vector\n");
-    
-    for(int j=1; j < nn->Inputsize; j++)
-    {
-        nn->HiddenLayer[0]->output[0] = 1;                           // BIAS FOR INPUT
-        nn->HiddenLayer[0]->output[j] = 2*(rando()-0.5)*0.6;
-        nn->HiddenLayer[0]->input[j] = nn->HiddenLayer[0]->output[j];
-        printf("%f\n", nn->HiddenLayer[0]->output[j]);
-    }
-    
-    
-    
-}
 
 void initOutput()
 {
@@ -112,42 +89,6 @@ void initOutput()
     
 }
 
-
-/*void randomizeWeights(HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
-{
-    
-    for(int j=0; j< lowerLayer->Neurons ; j++)           //
-    {
-        for(int k=0; k< higherLayer->Neurons; k++)         //
-        {
-            higherLayer->Theta[k][j] =  2*(rando()-0.5)*0.6;
-            //printf("%f  %d%d\t", nn->HiddenLayer[i]->Theta[k][j],k,j);
-            printf("%f  \t", higherLayer->Theta[k][j]);
-        }
-        
-        printf("\n");
-    }
-    
-    
-    
-}
-
-
-void distributeWeights(NN* nn)
-{
-    for(int i=1; i<MAX_LAYERS; i++)
-    {
-        printf("Theta %d Matrix\n", i);
-        HIDDENLAYER* higherLayer = nn->HiddenLayer[i];
-        HIDDENLAYER* lowerLayer = nn->HiddenLayer[i-1];
-        
-        randomizeWeights(higherLayer,lowerLayer);
-        
-        printf("\n");
-    }
-    
-}
-*/
 void print(double* a)
 {
     
