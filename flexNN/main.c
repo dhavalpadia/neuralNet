@@ -18,15 +18,8 @@
  10.TRAIN THE NETWORK!
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include <time.h>
 
-
-#define MAX_LAYERS 5            // ALWAYS WRITE +1 LAYER THAN NEEDED
-
-#define rando() ((double)rand()/((double)RAND_MAX+1))
+#include "decl.h"
 
 
 int Neurons[MAX_LAYERS] = {6, 5, 5, 3};             // Number of neurons in each layer
@@ -36,7 +29,7 @@ double target[3] = { 0.66, 0.99, 0.01};
 double outputError[MAX_LAYERS-2];
 
 
-typedef struct
+/*typedef struct
 {
     int             Neurons;         // Neurons
     double*         input;           // Incoming weighted sum to each neuron
@@ -55,7 +48,7 @@ typedef struct {
     double*         outputLayer;         //   output layer
     double*         inputLayer;          //   input layer
   //double*         targetOutput;
-}NN;
+}NN;*/
 
 
 
@@ -147,7 +140,7 @@ void initOutput()
 }
 
 
-void randomizeWeights(HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
+/*void randomizeWeights(HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
 {
     
     for(int j=0; j< lowerLayer->Neurons ; j++)           //
@@ -181,7 +174,7 @@ void distributeWeights(NN* nn)
     }
     
 }
-
+*/
 void print(double* a)
 {
     
