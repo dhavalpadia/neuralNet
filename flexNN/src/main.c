@@ -1,7 +1,6 @@
 // NIHIT BHAVSAR
 //  main.c
 //  flexNN
-//  Credits : Mr. Kutza
 // g(z)=z/2(1+abs(z))+0.5              signmoid with 2 divides and no multiplication
 
 /*
@@ -282,25 +281,6 @@ void outputDelta(NN* nn)
     
 }
 
-void changeWeights(HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
-{
-    //for(int c =0; c < higherLayer)
-    
-    
-}
-
-void updateWeights(NN* nn)
-{
-    for(int i = 1; i < MAX_LAYERS; i++)
-    {
-        HIDDENLAYER* higherLayer = nn->HiddenLayer[i];
-        HIDDENLAYER* lowerLayer = nn->HiddenLayer[i-1];
-        changeWeights(higherLayer, lowerLayer);
-        
-    }
-}
-
-
 
 void calcDeltas(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
 {
@@ -329,6 +309,39 @@ void calcDeltas(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
     
 }
 
+void changeWeights(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
+{
+    
+    for(int r =0; r < lowerLayer->Neurons; r++)
+    {
+        printf("\n\n\n");
+         for(int c=0; c < higherLayer->Neurons; c++)
+        {
+            
+            higherLayer->changeTheta[c][r] = higherLayer->delta[c] * higherLayer->Theta[c][r];
+            printf("delta : %f \n", higherLayer->delta[c]);
+            printf("Weight : %f \n", higherLayer->Theta[c][r]);
+            printf("changeWeight : %f \n\n", higherLayer->changeTheta[c][r]);
+        }
+        
+        
+    }
+    
+    
+}
+
+void updateWeights(NN* nn)
+{
+    for(int i = MAX_LAYERS-2; i > 0; i--)
+    {
+        HIDDENLAYER* higherLayer = nn->HiddenLayer[i];
+        HIDDENLAYER* lowerLayer = nn->HiddenLayer[i-1];
+        printf("\n\nLAYER %d \n",i);
+        changeWeights(nn, higherLayer, lowerLayer);
+        
+    }
+}
+
 void backprop(NN* nn)
 {
     
@@ -338,11 +351,9 @@ void backprop(NN* nn)
         HIDDENLAYER* higherLayer = nn->HiddenLayer[i];
         HIDDENLAYER* lowerLayer = nn->HiddenLayer[i-1];
         calcDeltas(nn, higherLayer, lowerLayer);
-        
-        updateWeights(nn);
-        
     }
-
+    
+        updateWeights(nn);
 }
 
 
