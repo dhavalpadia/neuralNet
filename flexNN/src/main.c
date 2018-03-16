@@ -16,8 +16,11 @@ double target[3] = { 0.66, 0.99, 0.01};
 double outputError[MAX_LAYERS-2];
 
 
-/* Aligning structure to 4-byte boundary to save space on embedded devices */
+/************************************************************
+            ALIGN STRUCTURES TO 4-BYTE BOUNDARY
+ ************************************************************/
 # pragma pack(4)
+
 typedef struct
 {
              int             Neurons;         // Neurons
@@ -40,7 +43,11 @@ typedef struct {
     double                   momentum;            // size of steps taken towards minimum to avoid local minima
 }NN;
 
-/* Initialize randoms for distribution */
+
+/************************************************************
+           INITIALIZE RANDOMS FOR DISTRIBUTION
+ ************************************************************/
+
 void initRandoms()
 {
     srand(2000);
@@ -51,9 +58,11 @@ double sigmoid(double in)
     return (1.0/(1.0+exp(-in)));
 }
 
+
 /************************************************************
            ALLOCATE MEMORY TO WHOLE STRUCTURE
  ************************************************************/
+
 void allocateMem(NN* nn)
 {
 
@@ -88,6 +97,10 @@ void allocateMem(NN* nn)
     nn->outputLayer = (double*)nn->HiddenLayer[MAX_LAYERS-2];
     
 }
+
+/***************************************************************************
+                        INITIALIZE INPUTS
+ ***************************************************************************/
 
 void initOutput()
 {
@@ -332,16 +345,17 @@ void backwardPass()
     backprop(&nn);
 }
 
+
+
 /*********************************************************************
                               MAIN
  *********************************************************************/
 int main()
 {
-    
-    
+
     forwardPass();
     backwardPass();
-    
+
     return 0;
 }
 
