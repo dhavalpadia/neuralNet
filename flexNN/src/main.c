@@ -47,14 +47,15 @@ typedef struct
 } HIDDENLAYER;
 
 typedef struct {
-    HIDDENLAYER**   HiddenLayer;         //   layers of this net
+    HIDDENLAYER**            HiddenLayer;         //   layers of this net
     volatile double          errorTotal;
-    double          Inputsize;           //   Number of input neurons
-    double          Outputsize;          //   Number of output neurons
-    double          eta;                 //   learning rate
-    double          gain;
-    double*         outputLayer;         //   output layer
-    double*         inputLayer;          //   input layer
+    volatile double*         outputLayer;         //   output layer
+    volatile double*         inputLayer;          //   input layer
+    double                   Inputsize;           //   Number of input neurons
+    double                   Outputsize;          //   Number of output neurons
+    double                   eta;                 //   learning rate
+    double                   gain;
+    
     
   //double*         targetOutput;
 }NN;
@@ -104,8 +105,8 @@ void allocateMem(NN* nn)
         
         if(i!=0)            // except input
         {
-            nn->HiddenLayer[i]->Theta = (double**)calloc(Neurons[i], sizeof(double*));            // cols
-            nn->HiddenLayer[i]->changeTheta = (double**)calloc(Neurons[i], sizeof(double*));
+            nn->HiddenLayer[i]->Theta = (volatile double**)calloc(Neurons[i], sizeof(double*));            // cols
+            nn->HiddenLayer[i]->changeTheta = (volatile double**)calloc(Neurons[i], sizeof(double*));
             for(int j=0; j<Neurons[i-1]; j++)
             {
                 nn->HiddenLayer[i]->Theta[j] = (double*)calloc(Neurons[i-1],sizeof(double));      //  rows
