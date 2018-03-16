@@ -332,7 +332,7 @@ void calcDeltas(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
 void backprop(NN* nn)
 {
     
-    for(int i=MAX_LAYERS-2; i>0; i--)
+    for(int i=MAX_LAYERS-2; i>1; i--)
     {
         
         HIDDENLAYER* higherLayer = nn->HiddenLayer[i];
