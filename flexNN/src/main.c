@@ -38,23 +38,24 @@ const int Neurons[MAX_LAYERS] = {6, 5, 5, 3};             // Number of neurons i
 # pragma pack(4)
 typedef struct
 {
-    int             Neurons;         // Neurons
-    double*         input;           // Incoming weighted sum to each neuron
-    double*         output;          // Outgoing activated signal from each neuron
-    double*         delta;           // Error associated with each neuron
-    double**        Theta;           // Weights
-    double**        changeTheta;      // Weight change
+             int             Neurons;         // Neurons
+    volatile double*         input;           // Incoming weighted sum to each neuron
+    volatile double*         output;          // Outgoing activated signal from each neuron
+    volatile double*         delta;           // Error associated with each neuron
+    volatile double**        Theta;           // Weights
+    volatile double**        changeTheta;      // Weight change
 } HIDDENLAYER;
 
 typedef struct {
     HIDDENLAYER**   HiddenLayer;         //   layers of this net
+    volatile double          errorTotal;
     double          Inputsize;           //   Number of input neurons
     double          Outputsize;          //   Number of output neurons
-    double          errorTotal;
     double          eta;                 //   learning rate
     double          gain;
     double*         outputLayer;         //   output layer
     double*         inputLayer;          //   input layer
+    
   //double*         targetOutput;
 }NN;
 
