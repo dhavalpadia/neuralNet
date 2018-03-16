@@ -9,8 +9,7 @@
 #ifndef initInput_h
 #define initInput_h
 
-void readInput();
-void initInput();
+
 
 
 #endif /* initInput_h */

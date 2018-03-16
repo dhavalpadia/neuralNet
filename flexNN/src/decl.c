@@ -10,7 +10,7 @@
 #include "decl.h"
 
 
-void randomizeWeights(HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
+/*void randomizeWeights(HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
 {
     
     for(int j=0; j< lowerLayer->Neurons ; j++)           //
@@ -43,7 +43,7 @@ void distributeWeights(NN* nn)
     }
     
 }
-
+*/
 
 
 

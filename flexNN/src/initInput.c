@@ -6,7 +6,7 @@
 //  Copyright © 2018 Nihit Bhavsar. All rights reserved.
 //
 
-#include "decl.h"
+//#include "decl.h"
 
 void readInput()  // FILE* p
 {
@@ -16,7 +16,7 @@ void readInput()  // FILE* p
 }
 
 
-void initInput()
+/*void initInput()
 {
     readInput();
     NN* nn;
@@ -30,6 +30,6 @@ void initInput()
         printf("%f\n", nn->HiddenLayer[0]->output[j]);
     }
     
+   
     
-    
-}
+}*/

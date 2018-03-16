@@ -9,17 +9,7 @@
 #ifndef decl_h
 #define decl_h
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include <time.h>
 
-#define MAX_LAYERS 5
-
-//const int Neurons[MAX_LAYERS] = {6, 5, 5, 3};             // Number of neurons in each layer
-
-
-#define rando() ((double)rand()/((double)RAND_MAX+1))
 
 
 typedef struct
@@ -43,10 +33,10 @@ typedef struct {
     //double*         targetOutput;
 }NN;
 
-void distributeWeights(NN* nn);
-void randomizeWeights(HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer);
-double sigmoid(double in);
-void allocateMem(NN* nn);
+//void distributeWeights(NN* nn);
+//void randomizeWeights(HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer);
+//double sigmoid(double in);
+//void allocateMem(NN* nn);
 
 
 
