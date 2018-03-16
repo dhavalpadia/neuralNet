@@ -283,7 +283,7 @@ void changeWeights(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
         printf("\n\n\n");
          for(int c=0; c < higherLayer->Neurons; c++)
         {
-            higherLayer->changeTheta[c][r] =  higherLayer->delta[c] -   higherLayer->Theta[c][r];
+            higherLayer->changeTheta[c][r] =  higherLayer->delta[c] -   higherLayer->Theta[c][r];       // add learning rate
 
             printf("Weight : %f \n", higherLayer->Theta[c][r]);
             printf("Desired Weight : %f \n", higherLayer->changeTheta[c][r]);
