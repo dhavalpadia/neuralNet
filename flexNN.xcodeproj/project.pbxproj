@@ -67,15 +67,31 @@
 		253225B520519E310077E764 /* flexNN */ = {
 			isa = PBXGroup;
 			children = (
-				253225B620519E310077E764 /* main.c */,
-				2532D8A6205B356000D1BDFD /* decl.c */,
-				2532D8A8205B360B00D1BDFD /* decl.h */,
-				2532D8AD205B3BED00D1BDFD /* sig.c */,
-				2532D8B0205B3C3200D1BDFD /* memAlloc.c */,
-				2532D8B3205B3C7500D1BDFD /* initInput.c */,
-				2532D8B5205B3F0800D1BDFD /* initInput.h */,
+				2532D8B7205B639600D1BDFD /* hdrs */,
+				2532D8B6205B637200D1BDFD /* src */,
 			);
 			path = flexNN;
+			sourceTree = "<group>";
+		};
+		2532D8B6205B637200D1BDFD /* src */ = {
+			isa = PBXGroup;
+			children = (
+				2532D8AD205B3BED00D1BDFD /* sig.c */,
+				2532D8B3205B3C7500D1BDFD /* initInput.c */,
+				2532D8B0205B3C3200D1BDFD /* memAlloc.c */,
+				2532D8A6205B356000D1BDFD /* decl.c */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		2532D8B7205B639600D1BDFD /* hdrs */ = {
+			isa = PBXGroup;
+			children = (
+				2532D8B5205B3F0800D1BDFD /* initInput.h */,
+				2532D8A8205B360B00D1BDFD /* decl.h */,
+				253225B620519E310077E764 /* main.c */,
+			);
+			path = hdrs;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
