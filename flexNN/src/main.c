@@ -1,4 +1,4 @@
-//
+// NIHIT BHAVSAR
 //  main.c
 //  flexNN
 //  Credits : Mr. Kutza
