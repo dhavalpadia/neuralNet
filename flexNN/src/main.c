@@ -3,25 +3,6 @@
 //  flexNN
 // g(z)=z/2(1+abs(z))+0.5              signmoid with 2 divides and no multiplication
 
-/*
- STEPS :
- 1. ALLOCATE MEMORY FOR EVERY MATRIX
- 2. DISTRIBUTE RANDOM WEIGHTS
- 3. INITIALIZE INPUTS
- 4. CALCULATE INCOMING SIGNAL(SUM) FOR EACH NEURON
- 5. CALCULATE OUTGOING SIGNAL(ACTICATION) FOR EACH NEURON
- 6. FORWARD PROPAGATE ACTIVATION VALUES TO NEXT LAYER
- 7. CALCULATE ERROR TOTAL (DESIRED - CURRENT)
- 8. BACK PROPAGATE NEURON BY NEURON
- 9. REPLACE WEIGHTS BY CORRECTED WEIGHTS
- 10.TRAIN THE NETWORK!
- */
-
-
-
-//#include "initInput.h"
-
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -29,12 +10,13 @@
 #include "decl.h"
 
 #define MAX_LAYERS 5
-
-const int Neurons[MAX_LAYERS] = {6, 5, 5, 3};             // Number of neurons in each layer
-
-
 #define rando() ((double)rand()/((double)RAND_MAX+1))
+const int Neurons[MAX_LAYERS] = {6, 5, 5, 3};             // Number of neurons in each layer
+double target[3] = { 0.66, 0.99, 0.01};
+double outputError[MAX_LAYERS-2];
 
+
+/* Aligning structure to 4-byte boundary to save space on embedded devices */
 # pragma pack(4)
 typedef struct
 {
@@ -43,7 +25,7 @@ typedef struct
     volatile double*         output;          // Outgoing activated signal from each neuron
     volatile double*         delta;           // Error associated with each neuron
     volatile double**        Theta;           // Weights
-    volatile double**        changeTheta;      // Weight change
+    volatile double**        changeTheta;     // Weight change
 } HIDDENLAYER;
 
 typedef struct {
@@ -55,44 +37,31 @@ typedef struct {
     double                   Outputsize;          //   Number of output neurons
     double                   eta;                 //   learning rate
     double                   gain;
-    
-    
-  //double*         targetOutput;
+    double                   momentum;            // size of steps taken towards minimum to avoid local minima
 }NN;
 
-
-
-//const int Neurons[5] = {6, 5, 5, 3};             // Number of neurons in each layer
-
-double target[3] = { 0.66, 0.99, 0.01};
-
-double outputError[MAX_LAYERS-2];
-
-
-
+/* Initialize randoms for distribution */
 void initRandoms()
 {
     srand(2000);
 }
-
 
 double sigmoid(double in)
 {
     return (1.0/(1.0+exp(-in)));
 }
 
-
+/************************************************************
+           ALLOCATE MEMORY TO WHOLE STRUCTURE
+ ************************************************************/
 void allocateMem(NN* nn)
 {
-    
+
     nn->Inputsize =  Neurons[0];
     nn->Outputsize = Neurons[MAX_LAYERS-2];
-    
     nn->HiddenLayer =  (HIDDENLAYER**)malloc(sizeof(HIDDENLAYER*));
     nn->inputLayer =   (double*)calloc(nn->Inputsize, sizeof(double));
     nn->outputLayer =  (double*)calloc(nn->Outputsize, sizeof(double));
-    
-    // nn->targetOutput = (double*)calloc(Neurons[MAX_LAYERS-2], sizeof(double));
     
     for(int i=0; i<MAX_LAYERS; i++)
     {
@@ -100,7 +69,6 @@ void allocateMem(NN* nn)
         nn->HiddenLayer[i]->Neurons = Neurons[i];
         nn->HiddenLayer[i]->input =   (double*)calloc(Neurons[i], sizeof(double));
         nn->HiddenLayer[i]->output =  (double*)calloc(Neurons[i], sizeof(double));
-        //nn->HiddenLayer[i]->Error =   (double*)calloc(Neurons[i], sizeof(double));
         nn->HiddenLayer[i]->delta =   (double*)calloc(Neurons[i], sizeof(double));
         
         if(i!=0)            // except input
@@ -109,7 +77,7 @@ void allocateMem(NN* nn)
             nn->HiddenLayer[i]->changeTheta = (volatile double**)calloc(Neurons[i], sizeof(double*));
             for(int j=0; j<Neurons[i-1]; j++)
             {
-                nn->HiddenLayer[i]->Theta[j] = (double*)calloc(Neurons[i-1],sizeof(double));      //  rows
+                nn->HiddenLayer[i]->Theta[j] = (double*)calloc(Neurons[i-1],sizeof(double));                //  rows
                 nn->HiddenLayer[i]->changeTheta[j] = (double*)calloc(Neurons[i-1], sizeof(double));
             }
         }
@@ -117,13 +85,9 @@ void allocateMem(NN* nn)
     }
     
     nn->inputLayer = (double*)nn->HiddenLayer[0];
-    //nn->Inputs = (double*)nn->HiddenLayer[1]->Input;
     nn->outputLayer = (double*)nn->HiddenLayer[MAX_LAYERS-2];
     
 }
-
-
-
 
 void initOutput()
 {
@@ -139,7 +103,6 @@ void initInput()
     //readInput();
     NN* nn;
     printf("Input Vector\n");
-    
     for(int j=1; j < nn->Inputsize; j++)
     {
         nn->HiddenLayer[0]->output[0] = 1;                           // BIAS FOR INPUT
@@ -147,22 +110,20 @@ void initInput()
         nn->HiddenLayer[0]->input[j] = nn->HiddenLayer[0]->output[j];
         printf("%f\n", nn->HiddenLayer[0]->output[j]);
     }
-    
-    
-    
 }
 
-
+/***************************************************************************
+                        INITIALIZE WEIGHTS
+ ***************************************************************************/
 
 void randomizeWeights(HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
 {
     
-    for(int j=0; j< lowerLayer->Neurons ; j++)           //
+    for(int j=0; j< lowerLayer->Neurons ; j++)
     {
-        for(int k=0; k< higherLayer->Neurons; k++)         //
+        for(int k=0; k< higherLayer->Neurons; k++)
         {
             higherLayer->Theta[k][j] =  2*(rando()-0.5)*0.6;
-            //printf("%f  %d%d\t", nn->HiddenLayer[i]->Theta[k][j],k,j);
             printf("%f  \t", higherLayer->Theta[k][j]);
         }
         
@@ -170,7 +131,6 @@ void randomizeWeights(HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
     }
     
 }
-
 
 void distributeWeights(NN* nn)
 {
@@ -199,6 +159,9 @@ void print(double* a)
     
 }
 
+/**********************************************************************
+                CALCULATE WEIGHTED SUMS AND ACTIVATIONS
+ **********************************************************************/
 
 void calcz(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
 {
@@ -210,23 +173,14 @@ void calcz(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
         sum = 0.0;
         for(int r=0; r < lowerLayer->Neurons; r++)
         {
-            
             sum += lowerLayer->output[r] * higherLayer->Theta[c][r];
             printf("\t%f", lowerLayer->output[r]);
             printf("\t%f\n", higherLayer->Theta[c][r]);
-            
         }
-        
-        
         higherLayer->input[c] = sum;
         // printf("\t higher layer input : %f\n", higherLayer->input[c]);       // without activation
-        
-        
         higherLayer->output[c] = sigmoid(sum);
-        
         printf("\t higher layer output : %f\n\n", higherLayer->output[c]);        // with activation
-        
-        
         // printf("\t lower layer input : %f\n", lowerLayer->input[c]);
         // printf("\t lower layer output : %f\n\n", lowerLayer->output[c]);
         
@@ -253,6 +207,9 @@ void calcActivation(NN* nn)
     }
 }
 
+/*********************************************************************
+                     FORWARD PROPAGATION
+ *********************************************************************/
 
 void forwardPass()
 {
@@ -266,6 +223,10 @@ void forwardPass()
     printf("\n prediction 2 : %f",nn.HiddenLayer[MAX_LAYERS-2]->output[1]);
     printf("\n prediction 3 : %f\n\n",nn.HiddenLayer[MAX_LAYERS-2]->output[2]);
 }
+
+/*********************************************************************
+                    CALCULATE OUTPUT ERRORS
+ *********************************************************************/
 
 void outputDelta(NN* nn)
 {
@@ -283,20 +244,19 @@ void outputDelta(NN* nn)
     
 }
 
+/*********************************************************************
+                    CALCULATE GRADIENTS
+ *********************************************************************/
 
 void calcDeltas(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
 {
     
     double sumD = 0.0;
-    
-    
-    
     for(int d=0; d < lowerLayer->Neurons; d++)
     {
         printf("\n");
         for(int c=0; c < higherLayer->Neurons; c++)
         {
-           
             sumD += higherLayer->delta[c] * higherLayer->Theta[c][d];
             printf("\t%f", higherLayer->delta[c]);
             printf("\t%f\n", higherLayer->Theta[c][d]);
@@ -311,6 +271,10 @@ void calcDeltas(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
     
 }
 
+/*********************************************************************
+                        UPDATE WEIGHTS
+ *********************************************************************/
+
 void changeWeights(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
 {
     
@@ -319,17 +283,15 @@ void changeWeights(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
         printf("\n\n\n");
          for(int c=0; c < higherLayer->Neurons; c++)
         {
-            
-            higherLayer->changeTheta[c][r] = higherLayer->delta[c] * higherLayer->Theta[c][r];
-            printf("delta : %f \n", higherLayer->delta[c]);
+            higherLayer->changeTheta[c][r] =  higherLayer->delta[c] -   higherLayer->Theta[c][r];
+
             printf("Weight : %f \n", higherLayer->Theta[c][r]);
-            printf("changeWeight : %f \n\n", higherLayer->changeTheta[c][r]);
+            printf("Desired Weight : %f \n", higherLayer->changeTheta[c][r]);
+            printf("delta : %f \n\n", higherLayer->delta[c]);
+            higherLayer->Theta[c][r] =  higherLayer->changeTheta[c][r];     // add momentum term
+            //printf("changeWeight : %f \n\n", higherLayer->changeTheta[c][r]);
         }
-        
-        
     }
-    
-    
 }
 
 void updateWeights(NN* nn)
@@ -343,6 +305,10 @@ void updateWeights(NN* nn)
         
     }
 }
+
+/*********************************************************************
+                        BACKWARD PROPAGATION
+ *********************************************************************/
 
 void backprop(NN* nn)
 {
@@ -366,7 +332,9 @@ void backwardPass()
     backprop(&nn);
 }
 
-
+/*********************************************************************
+                              MAIN
+ *********************************************************************/
 int main()
 {
     
@@ -374,10 +342,7 @@ int main()
     forwardPass();
     backwardPass();
     
-    
-    
-    
-    
+    return 0;
 }
 
 
