@@ -37,7 +37,7 @@ const int Neurons[MAX_LAYERS] = {6, 5, 5, 3};             // Number of neurons i
 #define rando() ((double)rand()/((double)RAND_MAX+1))
 
 
-/*typedef struct
+typedef struct
 {
     int             Neurons;         // Neurons
     double*         input;           // Incoming weighted sum to each neuron
@@ -51,12 +51,13 @@ typedef struct {
     HIDDENLAYER**   HiddenLayer;         //   layers of this net
     double          Inputsize;           //   Number of input neurons
     double          Outputsize;          //   Number of output neurons
+    double          errorTotal;
     double          eta;                 //   learning rate
     double          gain;
     double*         outputLayer;         //   output layer
     double*         inputLayer;          //   input layer
     //double*         targetOutput;
-}NN;*/
+}NN;
 
 
 
@@ -267,7 +268,7 @@ void forwardPass()
 
 void outputDelta(NN* nn)
 {
-    
+
     
     //printf("\nOUTPUT LAYER DELTA \n");
     for(int r=0; r < nn->HiddenLayer[MAX_LAYERS-2]->Neurons ; r++)
@@ -275,14 +276,17 @@ void outputDelta(NN* nn)
         
         outputError[r] = 0.5*((nn->HiddenLayer[MAX_LAYERS-2]->output[r] - target[r]) * (nn->HiddenLayer[MAX_LAYERS-2]->output[r] - target[r]));
         
-        //printf("node %d : %f\n",r+1, nn->HiddenLayer[MAX_LAYERS-2]->output[r]);
         printf("node %d ERROR : %f\n",r+1, outputError[r]);
         
         nn->HiddenLayer[MAX_LAYERS-2]->delta[r] = outputError[r] * (nn->HiddenLayer[MAX_LAYERS-2]->output[r]) * (1 - (nn->HiddenLayer[MAX_LAYERS-2]->output[r]));
+        
         printf("node %d DELTA : %f\n\n",r+1, nn->HiddenLayer[MAX_LAYERS-2]->delta[r]);
         
+         nn->errorTotal += outputError[r];
+       
+        
     }
-    
+    printf("Error Total : %f ", nn->errorTotal);
     printf("\n");
     
 }

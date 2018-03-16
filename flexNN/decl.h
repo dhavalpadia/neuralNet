@@ -12,7 +12,7 @@
 
 
 
-typedef struct
+/*typedef struct
 {
     int             Neurons;         // Neurons
     double*         input;           // Incoming weighted sum to each neuron
@@ -26,12 +26,13 @@ typedef struct {
     HIDDENLAYER**   HiddenLayer;         //   layers of this net
     double          Inputsize;           //   Number of input neurons
     double          Outputsize;          //   Number of output neurons
+    double          errorTotal;
     double          eta;                 //   learning rate
     double          gain;
     double*         outputLayer;         //   output layer
     double*         inputLayer;          //   input layer
     //double*         targetOutput;
-}NN;
+}NN;*/
 
 //void distributeWeights(NN* nn);
 //void randomizeWeights(HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer);
