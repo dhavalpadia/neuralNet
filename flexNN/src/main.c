@@ -36,7 +36,7 @@ const int Neurons[MAX_LAYERS] = {6, 5, 5, 3};             // Number of neurons i
 
 #define rando() ((double)rand()/((double)RAND_MAX+1))
 
-
+# pragma pack(4)
 typedef struct
 {
     int             Neurons;         // Neurons
@@ -56,7 +56,7 @@ typedef struct {
     double          gain;
     double*         outputLayer;         //   output layer
     double*         inputLayer;          //   input layer
-    //double*         targetOutput;
+  //double*         targetOutput;
 }NN;
 
 
@@ -87,7 +87,7 @@ void allocateMem(NN* nn)
     nn->Inputsize =  Neurons[0];
     nn->Outputsize = Neurons[MAX_LAYERS-2];
     
-    nn->HiddenLayer =  (HIDDENLAYER**)calloc(MAX_LAYERS, sizeof(HIDDENLAYER*));  //Declaring row pointers for all layers
+    nn->HiddenLayer =  (HIDDENLAYER**)malloc(sizeof(HIDDENLAYER*));
     nn->inputLayer =   (double*)calloc(nn->Inputsize, sizeof(double));
     nn->outputLayer =  (double*)calloc(nn->Outputsize, sizeof(double));
     
@@ -269,24 +269,15 @@ void forwardPass()
 void outputDelta(NN* nn)
 {
 
-    
-    //printf("\nOUTPUT LAYER DELTA \n");
     for(int r=0; r < nn->HiddenLayer[MAX_LAYERS-2]->Neurons ; r++)
     {
-        
         outputError[r] = 0.5*((nn->HiddenLayer[MAX_LAYERS-2]->output[r] - target[r]) * (nn->HiddenLayer[MAX_LAYERS-2]->output[r] - target[r]));
-        
         printf("node %d ERROR : %f\n",r+1, outputError[r]);
-        
-        nn->HiddenLayer[MAX_LAYERS-2]->delta[r] = outputError[r] * (nn->HiddenLayer[MAX_LAYERS-2]->output[r]) * (1 - (nn->HiddenLayer[MAX_LAYERS-2]->output[r]));
-        
+        nn->HiddenLayer[MAX_LAYERS-2]->delta[r] = outputError[r]*((nn->HiddenLayer[MAX_LAYERS-2]->output[r]) * (1 - (nn->HiddenLayer[MAX_LAYERS-2]->output[r])));
         printf("node %d DELTA : %f\n\n",r+1, nn->HiddenLayer[MAX_LAYERS-2]->delta[r]);
-        
-         nn->errorTotal += outputError[r];
-       
-        
+        nn->errorTotal += outputError[r];
     }
-    printf("Error Total : %f ", nn->errorTotal);
+    printf("ERROR TOTAL : %f ", nn->errorTotal);
     printf("\n");
     
 }
@@ -309,6 +300,8 @@ void updateWeights(NN* nn)
     }
 }
 
+
+
 void calcDeltas(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
 {
     
@@ -318,6 +311,7 @@ void calcDeltas(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
     
     for(int d=0; d < lowerLayer->Neurons; d++)
     {
+        printf("\n");
         for(int c=0; c < higherLayer->Neurons; c++)
         {
            
@@ -328,7 +322,7 @@ void calcDeltas(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
         
        lowerLayer->delta[d] = lowerLayer->output[d] * (1- lowerLayer->output[d])  * sumD;
         //printf("\n%f", lowerLayer->output[d]);
-        printf("\n%f", lowerLayer->delta[d]);
+        printf("\nLOWER LAYER DELTA : %f\n", lowerLayer->delta[d]);
         
         
     }
@@ -337,7 +331,7 @@ void calcDeltas(NN* nn, HIDDENLAYER* higherLayer, HIDDENLAYER* lowerLayer)
 
 void backprop(NN* nn)
 {
-    outputDelta(nn);
+    
     for(int i=MAX_LAYERS-2; i>0; i--)
     {
         
@@ -347,37 +341,16 @@ void backprop(NN* nn)
         
         updateWeights(nn);
         
-        
     }
 
-
-        
-        
-    }
-    
-    
-    
-
-
-
-
-    
-    
-
-
-
-
-
+}
 
 
 void backwardPass()
 {
     NN nn;
-    //outputError();
-    
+    outputDelta(&nn);
     backprop(&nn);
-    
-    
 }
 
 
