@@ -15,7 +15,7 @@
 #define rando() ((double)rand()/((double)RAND_MAX+1))
 const int Neurons[MAX_LAYERS] = {4, 4, 4, 3};             // Number of neurons in each layer
 const double target[3] = { 0.66, 0.99, 0.01};
-double outputError[MAX_LAYERS-2];
+double squaredError[MAX_LAYERS-2];
 
 int irows = 150;
 int icols = 4;
@@ -27,11 +27,12 @@ char* outputAddress = "/Users/nihit/Desktop/flexNN/y.txt";
 /************************************************************
             ALIGN STRUCTURES TO 4-BYTE BOUNDARY
  ************************************************************/
+
 # pragma pack(4)
 
 typedef struct
 {
-    int             Neurons;         // Neurons
+    int                      Neurons;         // Neurons
     volatile double*         input;           // Incoming weighted sum to each neuron
     volatile double*         output;          // Outgoing activated signal from each neuron
     volatile double*         delta;           // Error associated with each neuron
@@ -94,8 +95,8 @@ void allocateMem(NN* nn)
             nn->HiddenLayer[i]->changeTheta = (volatile double**)calloc(Neurons[i], sizeof(double*));
             for(int j=0; j<Neurons[i-1]; j++)
             {
-                nn->HiddenLayer[i]->Theta[j] = (double*)calloc(Neurons[i-1],sizeof(double));                //  rows
-                nn->HiddenLayer[i]->changeTheta[j] = (double*)calloc(Neurons[i-1], sizeof(double));
+                nn->HiddenLayer[i]->Theta[j] = (volatile double*)calloc(Neurons[i-1],sizeof(double));                //  rows
+                nn->HiddenLayer[i]->changeTheta[j] = (volatile double*)calloc(Neurons[i-1], sizeof(double));
             }
         }
        
@@ -125,14 +126,14 @@ void readInputs()
     
     FILE *file;
     file=fopen(inputAddress, "r");
-    
+    printf("INPUT FILE \n");
     for(i = 0; i < irows; i++)
     {
         for(j = 0; j < icols; j++)
         {
             if (!fscanf(file, " %lf%*c", &iMat[i][j]))
                 break;
-           // printf("%lf\t",iMat[i][j]);
+           printf("%lf\t",iMat[i][j]);
         }
         printf("\n");
         
@@ -147,7 +148,7 @@ void initInput(NN* nn)
     //readInput();
     
     
-    printf("Input Vector\n");
+    printf("\nInput Vector\n");
     
     //for(int r=0; r <= irows; r++)
     {
@@ -261,23 +262,7 @@ void calcActivation(NN* nn)
     }
 }
 
-/*********************************************************************
-                     FORWARD PROPAGATION
- *********************************************************************/
 
-void forwardPass()
-{
-    NN nn;
-    initRandoms();
-    allocateMem(&nn);           // Allocate memory for NN
-    readInputs();
-    initInput(&nn);
-    distributeWeights(&nn);             // Initialize inputs and randomize weights
-    calcActivation(&nn);
-    printf("\n prediction 1 : %f",nn.HiddenLayer[MAX_LAYERS-2]->output[0]);
-    printf("\n prediction 2 : %f",nn.HiddenLayer[MAX_LAYERS-2]->output[1]);
-    printf("\n prediction 3 : %f\n\n",nn.HiddenLayer[MAX_LAYERS-2]->output[2]);
-}
 
 /*********************************************************************
                     CALCULATE OUTPUT ERRORS
@@ -288,13 +273,15 @@ void outputDelta(NN* nn)
 
     for(int r=0; r < nn->HiddenLayer[MAX_LAYERS-2]->Neurons ; r++)
     {
-        outputError[r] = 0.5*((nn->HiddenLayer[MAX_LAYERS-2]->output[r] - target[r]) * (nn->HiddenLayer[MAX_LAYERS-2]->output[r] - target[r]));
-        printf("node %d ERROR : %f\n",r+1, outputError[r]);
-        nn->HiddenLayer[MAX_LAYERS-2]->delta[r] = outputError[r]*((nn->HiddenLayer[MAX_LAYERS-2]->output[r]) * (1 - (nn->HiddenLayer[MAX_LAYERS-2]->output[r])));
-        printf("node %d DELTA : %f\n\n",r+1, nn->HiddenLayer[MAX_LAYERS-2]->delta[r]);
-        nn->errorTotal += outputError[r];
+        double error = nn->HiddenLayer[MAX_LAYERS-2]->output[r] - target[r];
+        squaredError[r] = 0.5 * (error * error);
+        printf("NODE %d ERROR : %f\n",r+1, squaredError[r]);
+        
+        nn->HiddenLayer[MAX_LAYERS-2]->delta[r] = squaredError[r] * (error * (1 - error));
+        printf("NODE %d DELTA : %f\n\n",r+1, nn->HiddenLayer[MAX_LAYERS-2]->delta[r]);
+        nn->errorTotal += squaredError[r];
     }
-    printf("ERROR TOTAL : %f ", nn->errorTotal);
+    printf("TOTAL ERROR : %f ", nn->errorTotal);
     printf("\n");
     
 }
@@ -360,9 +347,6 @@ void updateWeights(NN* nn)
     }
 }
 
-/*********************************************************************
-                        BACKWARD PROPAGATION
- *********************************************************************/
 
 void backprop(NN* nn)
 {
@@ -378,12 +362,7 @@ void backprop(NN* nn)
 }
 
 
-void backwardPass()
-{
-    NN nn;
-    outputDelta(&nn);
-    backprop(&nn);
-}
+
 
 
 void train()
@@ -408,6 +387,53 @@ void test()
     
 }
 
+/*********************************************************************
+                INITIALIZING NETWORK ONLY ONCE
+ *********************************************************************/
+
+void initializeNetwork()                // Functions that run only once in the program
+{
+    NN nn;
+    initRandoms();
+    allocateMem(&nn);                   // Allocate memory for NN
+    distributeWeights(&nn);             // Initialize inputs and randomize weights
+    readInputs();
+}
+
+/*********************************************************************
+                        FORWARD PROPAGATION
+*********************************************************************/
+
+void forwardPass()
+{
+    NN nn;
+    
+    initInput(&nn);
+    calcActivation(&nn);
+    
+    for(int i=0; i<Neurons[MAX_LAYERS-2]; i++)
+    {
+        printf("\n Prediction %d : %f",i+1,nn.HiddenLayer[MAX_LAYERS-2]->output[i]);
+    }
+    
+    
+}
+
+/*********************************************************************
+                        BACKWARD PROPAGATION
+ *********************************************************************/
+
+void backwardPass()
+{
+    NN nn;
+    outputDelta(&nn);
+    backprop(&nn);
+}
+
+
+
+
+
 
 /*********************************************************************
                               MAIN
@@ -415,9 +441,9 @@ void test()
 int main()
 {
     
+    initializeNetwork();            // FUNCTIONS THAT NEEDS TO RUN ONLY ONCE
     
     forwardPass();
-    
     backwardPass();
     
 
